@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
-import { createUser, updateUser, getUserByEmail } from './controllers/userController';
+import { CreateUser, UpdateUser, GetUserByEmail } from './controllers/UserController';
 import "reflect-metadata";
 import { AppDataSource } from "./data-source";
 import { User } from "./models/User";
@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 5000;
 
 app.post('/users/new', async (req: Request, res: Response) => {
-    const result = await createUser(req.body);
+    const result = await CreateUser(req.body);
     var responseCode : number = 500;
     if (result?.responseCode != undefined)
     {
@@ -24,7 +24,7 @@ app.post('/users/new', async (req: Request, res: Response) => {
 
 app.post('/users/edit/:userId', async (req: Request, res: Response) => {
     const userId = Number(req.params.userId);
-    const result = await updateUser(userId, req.body);
+    const result = await UpdateUser(userId, req.body);
     var responseCode : number = 500;
     if (result?.responseCode != undefined)
     {
@@ -35,7 +35,7 @@ app.post('/users/edit/:userId', async (req: Request, res: Response) => {
 
 app.get('/users', async (req: Request, res: Response) => {
     const userEmail = req.query.email?.toString() ?? "";
-    const result = await getUserByEmail(userEmail);
+    const result = await GetUserByEmail(userEmail);
     res.status(result.responseCode).json(result.responseJson);
 })
 

@@ -3,36 +3,36 @@ import { AppDataSource } from "../data-source";
 import { User } from "../models/User";
 import { RequestResult } from "../models/RequestResult";
 
-export async function createUser(userJson: any) {
+export async function CreateUser(userJson: any) {
     try {
         const user = new User();
         user.email = userJson.email;
         user.username = userJson.username
         user.firstName = userJson.firstName;
         user.lastName = userJson.lastName;
-        user.password = randomString(10);
+        user.password = RandomString(10);
 
-        const userValidationFailure = validateUser(user);
+        const userValidationFailure = ValidateUserFieldsNotEmpty(user);
         if (userValidationFailure != null)
         {
             return userValidationFailure;
         }
 
-        const usernameValidationFailure = validateUsername(user.username);
-        if (await usernameValidationFailure != null)
+        const usernameValidationFailure = await ValidateUsernameNotTaken(user.username);
+        if (usernameValidationFailure != null)
         {
             return usernameValidationFailure;
         }
 
-        const emailValidationFailure = validateEmail(user.email);
-        if (await emailValidationFailure != null)
+        const emailValidationFailure = await ValidateEmailNotTaken(user.email);
+        if (emailValidationFailure != null)
         {
             return emailValidationFailure;
         }
         
         const userRepository = AppDataSource.getRepository(User);
         await userRepository.save(user);
-        const result = new RequestResult(201, true, undefined, getUserDataJson(user));
+        const result = new RequestResult(201, true, undefined, GetUserDataJson(user));
         return result;
     }
     catch (error) {
@@ -42,7 +42,7 @@ export async function createUser(userJson: any) {
     }
 }
 
-export async function updateUser(userId: number, userJson: any) {
+export async function UpdateUser(userId: number, userJson: any) {
     try {
         const userRepository = AppDataSource.getRepository(User);
         const user = await userRepository.findOneBy({
@@ -51,7 +51,7 @@ export async function updateUser(userId: number, userJson: any) {
 
         if (user == null)
         {
-            const userNotFoundResult = getUserNotFoundResult();
+            const userNotFoundResult = GetUserNotFoundResult();
             return userNotFoundResult;
         }
 
@@ -63,7 +63,7 @@ export async function updateUser(userId: number, userJson: any) {
         tempUser.lastName = userJson.lastName
         tempUser.password = user.password
 
-        const userValidationFailure = validateUser(tempUser);
+        const userValidationFailure = ValidateUserFieldsNotEmpty(tempUser);
         if (userValidationFailure != null)
         {
             return userValidationFailure;
@@ -71,8 +71,8 @@ export async function updateUser(userId: number, userJson: any) {
 
         if (user.username != tempUser.username)
         {
-            const usernameValidationFailure = validateUsername(tempUser.username);
-            if (await usernameValidationFailure != null)
+            const usernameValidationFailure = await ValidateUsernameNotTaken(tempUser.username);
+            if (usernameValidationFailure != null)
             {
                 return usernameValidationFailure;
             }
@@ -80,8 +80,8 @@ export async function updateUser(userId: number, userJson: any) {
 
         if (user.email != tempUser.email)
         {
-            const emailValidationFailure = validateEmail(tempUser.email);
-            if (await emailValidationFailure != null)
+            const emailValidationFailure = await ValidateEmailNotTaken(tempUser.email);
+            if (emailValidationFailure != null)
             {
                 return emailValidationFailure;
             }
@@ -93,7 +93,7 @@ export async function updateUser(userId: number, userJson: any) {
         user.lastName = tempUser.lastName;
     
         await userRepository.save(user)
-        const result = new RequestResult(200, true, undefined, getUserDataJson(user));
+        const result = new RequestResult(200, true, undefined, GetUserDataJson(user));
         return result;
     }
     catch (error) {
@@ -103,7 +103,7 @@ export async function updateUser(userId: number, userJson: any) {
     }
 }
 
-export async function getUserByEmail(userEmail: string)
+export async function GetUserByEmail(userEmail: string)
 {
     try {
         const userRepository = AppDataSource.getRepository(User);
@@ -112,11 +112,11 @@ export async function getUserByEmail(userEmail: string)
         });
         if (user == null)
         {
-            const userNotFoundResult = getUserNotFoundResult();
+            const userNotFoundResult = GetUserNotFoundResult();
             return userNotFoundResult;
         }
 
-        const result = new RequestResult(200, true, undefined, getUserDataJson(user));
+        const result = new RequestResult(200, true, undefined, GetUserDataJson(user));
         return result;
     }
     catch (error) {
@@ -126,13 +126,13 @@ export async function getUserByEmail(userEmail: string)
     }
 }
 
-function randomString(n: number)
+function RandomString(n: number)
 {
     var s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     return Array(n).join().split(',').map(function() { return s.charAt(Math.floor(Math.random() * s.length)); }).join('');
 }
 
-function validateUser(user: User)
+function ValidateUserFieldsNotEmpty(user: User)
 {
     if (!user.email || !user.username || !user.firstName || !user.lastName || !user.password)
     {
@@ -142,7 +142,7 @@ function validateUser(user: User)
     return null;
 }
 
-async function validateUsername(username: string)
+async function ValidateUsernameNotTaken(username: string)
 {
     const userRepository = AppDataSource.getRepository(User);
     const userWithSameUsername = await userRepository.findOneBy({
@@ -156,7 +156,7 @@ async function validateUsername(username: string)
     return null;
 }
 
-async function validateEmail(email: string)
+async function ValidateEmailNotTaken(email: string)
 {
     const userRepository = AppDataSource.getRepository(User);
     const userWithSameEmail = await userRepository.findOneBy({
@@ -171,13 +171,13 @@ async function validateEmail(email: string)
     return null;
 }
 
-function getUserNotFoundResult()
+function GetUserNotFoundResult()
 {
     const result = new RequestResult(404, false, "UserNotFound", undefined);
     return result;
 }
 
-function getUserDataJson(user: User)
+function GetUserDataJson(user: User)
 {
     const data = <JSON><unknown> {
         "id": user.id,
