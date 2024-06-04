@@ -4,7 +4,6 @@ dotenv.config();
 import { CreateUser, UpdateUser, GetUserByEmail } from './controllers/UserController';
 import "reflect-metadata";
 import { AppDataSource } from "./data-source";
-import { User } from "./models/User";
 
 const app: Express = express();
 app.use(express.json());

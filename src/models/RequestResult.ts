@@ -1,4 +1,13 @@
 export class RequestResult {
+    public static readonly Errors = {
+        UsernameAlreadyTaken: 'UserNameAlreadyTaken',
+        EmailAlreadyInUse: 'EmailAlreadyInUse',
+        ValidationError: 'ValidationError',
+        ServerError: 'ServerError',
+        ClientError: 'ClientError',
+        UserNotFound: 'UserNotFound'
+      }
+
     responseCode: number;
     responseJson: JSON;
 

@@ -37,7 +37,8 @@ export async function CreateUser(userJson: any) {
     }
     catch (error) {
         console.log(error);
-        const result = new RequestResult(500, false, "ServerError", undefined);
+        //const result = new RequestResult(500, false, "ServerError", undefined);
+        const result = new RequestResult(500, false, RequestResult.Errors.ServerError, undefined);
         return result;
     }
 }
@@ -98,7 +99,8 @@ export async function UpdateUser(userId: number, userJson: any) {
     }
     catch (error) {
         console.log(error);
-        const result = new RequestResult(500, false, "ServerError", undefined);
+        //const result = new RequestResult(500, false, "ServerError", undefined);
+        const result = new RequestResult(500, false, RequestResult.Errors.ServerError, undefined);
         return result;
     }
 }
@@ -136,7 +138,8 @@ function ValidateUserFieldsNotEmpty(user: User)
 {
     if (!user.email || !user.username || !user.firstName || !user.lastName || !user.password)
     {
-        const result = new RequestResult(400, false, "ValidationError", undefined);
+        //const result = new RequestResult(400, false, "ValidationError", undefined);
+        const result = new RequestResult(400, false, RequestResult.Errors.ValidationError, undefined);
         return result;
     }
     return null;
@@ -150,7 +153,8 @@ async function ValidateUsernameNotTaken(username: string)
     })
     if (userWithSameUsername != null)
     {
-        const result = new RequestResult(409, false, "UsernameAlreadyTaken", undefined);
+        //const result = new RequestResult(409, false, "UsernameAlreadyTaken", undefined);
+        const result = new RequestResult(409, false, RequestResult.Errors.UsernameAlreadyTaken, undefined);
         return result;
     }
     return null;
@@ -165,7 +169,8 @@ async function ValidateEmailNotTaken(email: string)
 
     if (userWithSameEmail != null)
     {
-        const result = new RequestResult(409, false, "EmailAlreadyInUse", undefined);
+        //const result = new RequestResult(409, false, "EmailAlreadyInUse", undefined);
+        const result = new RequestResult(409, false, RequestResult.Errors.EmailAlreadyInUse, undefined);
         return result;
     }
     return null;
@@ -173,19 +178,14 @@ async function ValidateEmailNotTaken(email: string)
 
 function GetUserNotFoundResult()
 {
-    const result = new RequestResult(404, false, "UserNotFound", undefined);
+    //const result = new RequestResult(404, false, "UserNotFound", undefined);
+    const result = new RequestResult(404, false, RequestResult.Errors.UserNotFound, undefined);
     return result;
 }
 
 function GetUserDataJson(user: User)
 {
-    const data = <JSON><unknown> {
-        "id": user.id,
-        "email": user.email,
-        "username": user.username,
-        "firstName": user.firstName,
-        "lastName": user.lastName
-    };
-
+    const data = JSON.parse(JSON.stringify(user));
+    delete data.password;
     return data;
 }
